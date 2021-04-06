@@ -12,7 +12,7 @@ namespace {
 constexpr unsigned upper_bin_power(const std::size_t n)
 {
     unsigned i = 0;
-    while ((1UL << i) < n) {
+    while ((static_cast<std::size_t>(1) << i) < n) {
         ++i;
     }
     return i;
@@ -76,7 +76,7 @@ struct SecondChanceTest : ::testing::Test
 
     static constexpr std::size_t biggest_element = std::max(sizeof(Point), sizeof(String));
     static constexpr std::size_t min_power = upper_bin_power(biggest_element);
-    static constexpr std::size_t max_power = upper_bin_power((1UL << min_power) * (cache_size + 1));
+    static constexpr std::size_t max_power = upper_bin_power((static_cast<std::size_t>(1) << min_power) * (cache_size + 1));
 
     String & get_string(const int n)
     { return cache.get<String>(n); }

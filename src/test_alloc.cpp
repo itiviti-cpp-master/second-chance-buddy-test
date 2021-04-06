@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-#ifndef SANITIZE
+#ifdef JEMALLOC
 #include <jemalloc/jemalloc.h>
 #endif
 
@@ -70,7 +70,7 @@ struct Params
 constexpr unsigned upper_bin_power(const std::size_t n)
 {
     unsigned i = 0;
-    while ((1UL << i) < n) {
+    while ((static_cast<std::size_t>(1) << i) < n) {
         ++i;
     }
     return i;
@@ -85,7 +85,7 @@ constexpr std::size_t get_capacity(const unsigned min_power, const unsigned max_
     if (target_power > max_power) {
         return 0;
     }
-    return 1UL << (max_power - target_power);
+    return static_cast<std::size_t>(1) << (max_power - target_power);
 }
 
 constexpr std::size_t get_block_count(const unsigned min_power, const std::size_t target_size)
@@ -94,7 +94,7 @@ constexpr std::size_t get_block_count(const unsigned min_power, const std::size_
     if (target_power <= min_power) {
         return 1;
     }
-    return 1UL << (target_power - min_power);
+    return static_cast<std::size_t>(1) << (target_power - min_power);
 }
 
 template <class P>
@@ -103,7 +103,7 @@ struct AllocatorTest : ::testing::Test
     static constexpr std::size_t dummy_size = P::size * P::count;
     static constexpr unsigned max_power = std::max(upper_bin_power(sizeof(Complex)) - 1, upper_bin_power(dummy_size));
     static constexpr unsigned min_power = max_power > 6 ? (max_power - 6) : 1;
-    static constexpr std::size_t block_count = 1UL << (max_power - min_power);
+    static constexpr std::size_t block_count = static_cast<std::size_t>(1) << (max_power - min_power);
     static constexpr std::size_t dummy_capacity = get_capacity(min_power, max_power, P::size);
     static constexpr std::size_t complex_capacity = get_capacity(min_power, max_power, sizeof(Complex));
     static constexpr std::size_t dummy_cost = get_block_count(min_power, P::size);
@@ -444,7 +444,7 @@ TYPED_TEST(AllocatorTest, complex_fragmentation)
     }
 }
 
-#ifndef SANITIZE
+#ifdef JEMALLOC
 namespace {
 
 std::size_t get_current_size()
