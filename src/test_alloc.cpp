@@ -160,6 +160,19 @@ TYPED_TEST_SUITE(AllocatorTest, TestedTypes);
 
 } // anonymous namespace
 
+TEST(BasicAllocatorTest, allocate_smallest)
+{
+    PoolAllocator alloc(0, 2);
+    void * first = alloc.allocate(2);
+    void * second = alloc.allocate(1);
+    alloc.deallocate(first);
+    void * third = alloc.allocate(1);
+    void * fourth = alloc.allocate(2);
+    alloc.deallocate(second);
+    alloc.deallocate(third);
+    alloc.deallocate(fourth);
+}
+
 TYPED_TEST(AllocatorTest, single_dummy)
 {
     auto ptr = this->create_dummy();
